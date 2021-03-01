@@ -1,0 +1,92 @@
+
+linters-settings:
+  govet:
+    check-shadowing: true
+  maligned:
+    suggest-new: true
+  lll:
+    line-length: 120
+    tab-width: 4
+
+linters:
+  enable:
+    - asciicheck
+    - bodyclose
+    - deadcode
+    - depguard
+    - dogsled
+    - dupl
+    - errcheck
+    - errorlint
+    - exhaustive
+    - exhaustivestruct
+    - exportloopref
+    - forbidigo
+    - funlen
+    - gochecknoinits
+    - gci
+    - gocognit
+    - goconst
+    - gocritic
+    - gocyclo
+    - godot
+    - godox
+    - goerr113
+    - gofmt
+    - gofumpt
+    - goheader
+    - goimports
+    - golint
+    - gomodguard
+    - goprintffuncname
+    - gosec
+    - gosimple
+    - govet
+    - ifshort
+    - ineffassign
+    - interfacer
+    - lll
+    - makezero
+    - maligned
+    - misspell
+    - nakedret
+    - nestif
+    - noctx
+    - nolintlint
+    - paralleltest
+    - predeclared
+    - scopelint
+    - staticcheck
+    - structcheck
+    - stylecheck
+    - testpackage
+    - thelper
+    - tparallel
+    - typecheck
+    - unconvert
+    - unused
+    - varcheck
+    - whitespace
+  disabled:
+    - gochecknoglobals  # This can sometimes be needed
+    - gomnd             # False positives on length checks
+    - nlreturn          # Style; can result in oddly spaced code with single returns
+    - prealloc          # Premature optimization; can result in false positives
+    - rowserrcheck      # No DB/SQL in this project
+    - sqlclosecheck     # No DB/SQL in this project
+    - unparam           # Style; personal preference is to assign names even if not used
+    - wrapcheck         # Returning errors from external packages is fine
+    - wsl               # Style; personal preference clashes with linter
+
+issues:
+  exclude-rules:
+    - path: _test\.go
+      # Turn off the following linters for all test files
+      linters:
+        - dupl
+        - exhaustivestruct
+        - lll
+        - funlen
+        - errcheck
+        - goerr113
+        - goconst
