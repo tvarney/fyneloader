@@ -10,16 +10,15 @@ import (
 // callbacks.
 type CreateElementFn func(interface{}) fyne.CanvasObject
 
-// Reader allows for reading UI definitions at runtime.
-type Reader struct {
+// Loader allows for loading UI definitions at runtime.
+type Loader struct {
 	callbacks map[string]interface{}
-
-	elements map[string]CreateElementFn
+	elements  map[string]CreateElementFn
 }
 
-// New returns a new Reader instance.
-func New() *Reader {
-	return &Reader{
+// New returns a new Loader instance.
+func New() *Loader {
+	return &Loader{
 		callbacks: map[string]interface{}{},
 		elements:  map[string]CreateElementFn{},
 	}
@@ -30,15 +29,15 @@ func New() *Reader {
 // If the function callback is nil and there already exists a callback for the
 // given name, the callback will be removed. This function will replace a
 // callback with no error if a name is repeated.
-func (r *Reader) RegisterElement(name string, fn CreateElementFn) {
+func (l *Loader) RegisterElement(name string, fn CreateElementFn) {
 	if fn == nil {
-		_, ok := r.elements[name]
+		_, ok := l.elements[name]
 		if ok {
-			delete(r.elements, name)
+			delete(l.elements, name)
 		}
 		return
 	}
-	r.elements[name] = fn
+	l.elements[name] = fn
 }
 
 // RegisterFunc registers a new function available for use within generated
@@ -47,12 +46,12 @@ func (r *Reader) RegisterElement(name string, fn CreateElementFn) {
 // The type of fn must be a function type; if it is not then the function will
 // return an error. If a name is repeated, the function will be replaced in the
 // set of available functions.
-func (r *Reader) RegisterFunc(name string, fn interface{}) error {
+func (l *Loader) RegisterFunc(name string, fn interface{}) error {
 	if reflect.TypeOf(fn).Kind() != reflect.Func {
 		return FunctionTypeError{
 			Func: fn,
 		}
 	}
-	r.callbacks[name] = fn
+	l.callbacks[name] = fn
 	return nil
 }

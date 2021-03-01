@@ -13,14 +13,14 @@ func TestReader(t *testing.T) {
 		t.Parallel()
 		t.Run("Function", func(t *testing.T) {
 			t.Parallel()
-			r := fyneloader.New()
-			require.NoError(t, r.RegisterFunc("test", func() {}))
+			l := fyneloader.New()
+			require.NoError(t, l.RegisterFunc("test", func() {}))
 		})
 		t.Run("NonFunction", func(t *testing.T) {
 			t.Parallel()
-			r := fyneloader.New()
+			l := fyneloader.New()
 			require.EqualError(
-				t, r.RegisterFunc("test", true),
+				t, l.RegisterFunc("test", true),
 				fyneloader.FunctionTypeError{Func: true}.Error(),
 			)
 		})
