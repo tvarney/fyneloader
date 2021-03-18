@@ -184,12 +184,12 @@ func createBox(
 ) fyne.CanvasObject {
 	switch w := v.(type) {
 	case string:
-		return container.NewVBox()
+		return fn()
 	case map[string]interface{}:
 		cdata, _, err := maputil.GetArray(w, KeyChildren)
 		ctx.ErrorWithKey(err, KeyChildren)
 		if len(cdata) == 0 {
-			return container.NewVBox()
+			return fn()
 		}
 
 		hidden, _, err := maputil.GetBoolean(w, KeyHidden)
@@ -205,7 +205,7 @@ func createBox(
 			}
 		}
 
-		box := container.NewVBox(children...)
+		box := fn(children...)
 		box.Hidden = hidden
 		return box
 	}
