@@ -130,6 +130,49 @@ func CreateHBox(ctx *errctx.Context, l *Loader, v interface{}) fyne.CanvasObject
 	return createBox(ctx, l, v, container.NewHBox)
 }
 
+// CreateLabel creates a new Label.
+func CreateLabel(ctx *errctx.Context, l *Loader, v interface{}) fyne.CanvasObject {
+	switch w := v.(type) {
+	case string:
+		return widget.NewLabel("")
+	case map[string]interface{}:
+		text, _, err := maputil.GetString(w, KeyText)
+		ctx.ErrorWithKey(err, KeyText)
+
+		align, err := GetStringEnumAsInt(
+			w, KeyAlign, []string{ValueDefault, ValueLeading, ValueCenter, ValueTrailing},
+			[]int{
+				int(fyne.TextAlignLeading), int(fyne.TextAlignLeading), int(fyne.TextAlignCenter),
+				int(fyne.TextAlignTrailing),
+			}, int(fyne.TextAlignLeading),
+		)
+		ctx.ErrorWithKey(err, KeyAlign)
+
+		wrap, err := GetStringEnumAsInt(
+			w, KeyWrap, []string{ValueDefault, ValueOff, ValueTruncate, ValueBreak, ValueWord},
+			[]int{
+				int(fyne.TextWrapOff), int(fyne.TextWrapOff), int(fyne.TextTruncate), int(fyne.TextWrapBreak),
+				int(fyne.TextWrapWord),
+			}, int(fyne.TextWrapOff),
+		)
+		ctx.ErrorWithKey(err, KeyWrap)
+
+		style, err := GetTextStyle(w, KeyStyle)
+		ctx.ErrorWithKey(err, KeyStyle)
+
+		lbl := widget.NewLabel(text)
+		lbl.Alignment = fyne.TextAlign(align)
+		lbl.Wrapping = fyne.TextWrap(wrap)
+		lbl.TextStyle = style
+		return lbl
+	}
+	ctx.Error(maputil.InvalidTypeError{
+		Actual:   maputil.TypeName(v),
+		Expected: []string{maputil.TypeString, maputil.TypeObject},
+	})
+	return nil
+}
+
 // CreateVBox creates a new HBox container.
 func CreateVBox(ctx *errctx.Context, l *Loader, v interface{}) fyne.CanvasObject {
 	return createBox(ctx, l, v, container.NewVBox)

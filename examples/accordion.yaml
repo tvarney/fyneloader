@@ -4,9 +4,17 @@ root:
   items:
   - title: One
     child:
-      type: button
-      text: one
+      type: vbox
+      children:
+      - type: label
+        text: "This is button one"
+      - type: button
+        text: one
   - title: Two
     child:
-      type: button
-      text: two
+      type: hbox
+      children:
+      - type: label
+        text: "Don't Press: "
+      - type: button
+        text: two

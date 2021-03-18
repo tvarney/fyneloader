@@ -34,6 +34,7 @@ func New() *Loader {
 			"accordion": CreateAccordion,
 			"button":    CreateButton,
 			"hbox":      CreateHBox,
+			"label":     CreateLabel,
 			"vbox":      CreateVBox,
 		},
 	}
