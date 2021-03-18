@@ -13,7 +13,7 @@ import (
 	"github.com/tvarney/maputil"
 	"github.com/tvarney/maputil/errctx"
 	"github.com/tvarney/maputil/mpath"
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 )
 
 // CreateElementFn is the function type used for the element creation
@@ -32,6 +32,8 @@ func New() *Loader {
 		callbacks: map[string]interface{}{},
 		elements: map[string]CreateElementFn{
 			"button": CreateButton,
+			"hbox":   CreateHBox,
+			"vbox":   CreateVBox,
 		},
 	}
 }
@@ -84,9 +86,9 @@ func (l *Loader) GetFunc(name string) (interface{}, error) {
 func (l *Loader) ReadFile(ctx *errctx.Context, path string) (map[string]fyne.CanvasObject, error) {
 	ext := strings.ToLower(filepath.Ext(path))
 	switch ext {
-	case "yaml", "yml":
+	case ".yaml", ".yml":
 		return l.ReadFileYAML(ctx, path)
-	case "json":
+	case ".json":
 		return l.ReadFileJSON(ctx, path)
 	}
 	return nil, fmt.Errorf("%w %q", ErrUnknownFileExt, ext)

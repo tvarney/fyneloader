@@ -1,0 +1,11 @@
+root:
+  type: vbox
+  children:
+  - type: hbox
+    children:
+    - type: button
+      text: one
+    - type: button
+      text: two
+  - type: button
+    text: "three"
