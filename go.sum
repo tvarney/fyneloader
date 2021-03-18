@@ -38,8 +38,8 @@ github.com/stretchr/testify v1.2.2/go.mod h1:a8OnRcib4nhh0OaRAV+Yts87kKdq0PP7pXf
 github.com/stretchr/testify v1.5.1/go.mod h1:5W2xD1RspED5o8YsWQXVCued0rvSQ+mT+I5cxcmMvtA=
 github.com/stretchr/testify v1.7.0 h1:nwc3DEeHmmLAfoZucVR881uASk0Mfjw8xYJ99tb5CcY=
 github.com/stretchr/testify v1.7.0/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
-github.com/tvarney/maputil v0.0.0-20210228214509-3da7a4b82745 h1:6qXtr0BngIfqG6RSXBB4diIBsN1VqVHULsxrZKGxaCY=
-github.com/tvarney/maputil v0.0.0-20210228214509-3da7a4b82745/go.mod h1:3J0eQRx33HLJi0SYbUAtCgHRWAcQTMQq3wdoEwS9uhw=
+github.com/tvarney/maputil v0.0.0-20210304060320-f3d9b349562f h1:ZIYmMEC/AjwB16SZowA1C3SJ8Opr1TCtcKCRbQHbREU=
+github.com/tvarney/maputil v0.0.0-20210304060320-f3d9b349562f/go.mod h1:3J0eQRx33HLJi0SYbUAtCgHRWAcQTMQq3wdoEwS9uhw=
 github.com/yuin/goldmark v1.1.25/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
 golang.org/x/crypto v0.0.0-20191011191535-87dc89f01550/go.mod h1:yigFU9vqHzYiE8UmvKecakEJjdnWj3jj499lnFckfCI=

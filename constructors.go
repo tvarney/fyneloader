@@ -4,26 +4,26 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/widget"
 	"github.com/tvarney/maputil"
+	"github.com/tvarney/maputil/errctx"
 )
 
 // CreateButton creates a new button using the data in v.
-func CreateButton(l *Loader, v interface{}) (fyne.CanvasObject, error) {
+func CreateButton(ctx *errctx.Context, l *Loader, v interface{}) fyne.CanvasObject {
 	switch w := v.(type) {
 	case string:
-		return widget.NewButton("", nil), nil
+		return widget.NewButton("", nil)
 	case map[string]interface{}:
 		text, _, err := maputil.GetString(w, KeyText)
-		if err != nil {
-			return nil, err
-		}
+		ctx.ErrorWithKey(err, KeyText)
+
 		fn, err := GetFnVoidToVoid(l, w, KeyFunc)
-		if err != nil {
-			return nil, err
-		}
-		return widget.NewButton(text, fn), nil
+		ctx.ErrorWithKey(err, KeyFunc)
+
+		return widget.NewButton(text, fn)
 	}
-	return nil, maputil.InvalidTypeError{
+	ctx.Error(maputil.InvalidTypeError{
 		Actual:   maputil.TypeName(v),
 		Expected: []string{maputil.TypeString, maputil.TypeObject},
-	}
+	})
+	return nil
 }
