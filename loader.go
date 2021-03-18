@@ -31,9 +31,10 @@ func New() *Loader {
 	return &Loader{
 		callbacks: map[string]interface{}{},
 		elements: map[string]CreateElementFn{
-			"button": CreateButton,
-			"hbox":   CreateHBox,
-			"vbox":   CreateVBox,
+			"accordion": CreateAccordion,
+			"button":    CreateButton,
+			"hbox":      CreateHBox,
+			"vbox":      CreateVBox,
 		},
 	}
 }

@@ -1,0 +1,12 @@
+root:
+  type: accordion
+  multi-open: true
+  items:
+  - title: One
+    child:
+      type: button
+      text: one
+  - title: Two
+    child:
+      type: button
+      text: two
