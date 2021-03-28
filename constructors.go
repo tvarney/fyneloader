@@ -126,6 +126,42 @@ func CreateButton(ctx *errctx.Context, l *Loader, v interface{}) fyne.CanvasObje
 	return nil
 }
 
+// CreateCard creates a new Card widget.
+func CreateCard(ctx *errctx.Context, l *Loader, v interface{}) fyne.CanvasObject {
+	switch w := v.(type) {
+	case string:
+		return widget.NewCard("", "", nil)
+	case map[string]interface{}:
+		title, _, err := maputil.GetString(w, KeyTitle)
+		ctx.ErrorWithKey(err, KeyTitle)
+
+		subtitle, _, err := maputil.GetString(w, KeySubTitle)
+		ctx.ErrorWithKey(err, KeySubTitle)
+
+		var child fyne.CanvasObject
+		childdata, _, err := maputil.GetObject(w, KeyChild)
+		ctx.ErrorWithKey(err, KeyChild)
+		if childdata != nil {
+			ctx.Path.Add(mpath.Key(KeyChild))
+			child = l.Unpack(ctx, childdata)
+			ctx.Path.Pop()
+		}
+
+		hidden, _, err := maputil.GetBoolean(w, KeyHidden)
+		ctx.ErrorWithKey(err, KeyHidden)
+
+		card := widget.NewCard(title, subtitle, child)
+		card.Hidden = hidden
+		card.Image = GetImage(ctx, w)
+		return card
+	}
+	ctx.Error(maputil.InvalidTypeError{
+		Actual:   maputil.TypeName(v),
+		Expected: []string{maputil.TypeString, maputil.TypeObject},
+	})
+	return nil
+}
+
 // CreateCheck creates a new Check widget.
 func CreateCheck(ctx *errctx.Context, l *Loader, v interface{}) fyne.CanvasObject {
 	switch w := v.(type) {

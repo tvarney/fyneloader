@@ -2,7 +2,10 @@ package fyneloader
 
 import (
 	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/canvas"
+	"fyne.io/fyne/v2/storage"
 	"github.com/tvarney/maputil"
+	"github.com/tvarney/maputil/errctx"
 )
 
 // GetFnVoidToVoid fetches a func() from the registered functions in the loader.
@@ -84,4 +87,41 @@ func GetTextStyle(data map[string]interface{}, key string) (fyne.TextStyle, erro
 		Value: value,
 		Enum:  []string{"bold", "italic", "monospace", "bold+italic", "italic+bold"},
 	}
+}
+
+func GetImage(ctx *errctx.Context, data map[string]interface{}) *canvas.Image {
+	imgpath, pathok, err := maputil.GetString(data, KeyImagePath)
+	ctx.ErrorWithKey(err, KeyImagePath)
+
+	imguri, uriok, err := maputil.GetString(data, KeyImageURI)
+	ctx.ErrorWithKey(err, KeyImageURI)
+
+	imgfill, err := GetStringEnumAsInt(
+		data, KeyImageFill,
+		[]string{ValueDefault, ValueStretch, ValueContain, ValueOriginal},
+		[]int{
+			int(canvas.ImageFillStretch), int(canvas.ImageFillStretch),
+			int(canvas.ImageFillContain), int(canvas.ImageFillOriginal),
+		}, int(canvas.ImageFillStretch),
+	)
+	ctx.ErrorWithKey(err, KeyImageFill)
+
+	var img *canvas.Image
+	if pathok {
+		if uriok {
+			ctx.Error(ConflictingKeysError{Keys: []string{KeyImagePath, KeyImageURI}})
+		}
+		img = canvas.NewImageFromFile(imgpath)
+	} else if uriok {
+		path, err := storage.ParseURI(imguri)
+		if err == nil {
+			img = canvas.NewImageFromURI(path)
+		} else {
+			ctx.ErrorWithKey(err, KeyImageURI)
+		}
+	}
+	if img != nil {
+		img.FillMode = canvas.ImageFill(imgfill)
+	}
+	return img
 }

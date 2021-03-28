@@ -19,6 +19,7 @@ well as attempt to continue even when errors are present.
 The current set of supported widgets is:
 * `Accordion`
 * `Button`
+* `Card`
 * `Check`
 * `HBox`
 * `Label`
@@ -28,7 +29,6 @@ The current set of supported widgets is:
 Extra widgets which are planned to be supported are:
 * `AdaptiveGrid`
 * `BorderContainer`
-* `Card`
 * `CenterContainer`
 * `Entry`
 * `Form`

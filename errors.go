@@ -1,6 +1,9 @@
 package fyneloader
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 // ConstError is a simple constant error type.
 type ConstError string
@@ -17,6 +20,24 @@ const (
 	// extension.
 	ErrUnknownFileExt ConstError = "unknown file extension"
 )
+
+// ConflictingKeysError is an error which indicates that some keys in the
+// configuration conflict.
+type ConflictingKeysError struct {
+	Keys []string
+}
+
+func (e ConflictingKeysError) Error() string {
+	if len(e.Keys) == 0 {
+		return "conflicting keys"
+	}
+	builder := &strings.Builder{}
+	fmt.Fprintf(builder, "conflicting keys: %s", e.Keys[0])
+	for _, v := range e.Keys[1:] {
+		fmt.Fprintf(builder, ", %s", v)
+	}
+	return builder.String()
+}
 
 // FunctionTypeError is an error which indicates that a function type did not
 // match any of the allowed types.
