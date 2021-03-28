@@ -19,7 +19,20 @@ const (
 	// ErrUnknownFileExt indicates that a file path did not have a known
 	// extension.
 	ErrUnknownFileExt ConstError = "unknown file extension"
+
+	// ErrInvalidOption indicates that an option given was not valid.
+	ErrInvalidOption ConstError = "invalid option"
 )
+
+// ArrayIndexOutOfBoundsError is an error indicating that the given index was
+// out of bounds for the source array.
+type ArrayIndexOutOfBoundsError struct {
+	Index int64
+}
+
+func (e ArrayIndexOutOfBoundsError) Error() string {
+	return fmt.Sprintf("array index %d out of bounds", e.Index)
+}
 
 // ConflictingKeysError is an error which indicates that some keys in the
 // configuration conflict.

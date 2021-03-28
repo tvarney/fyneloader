@@ -23,6 +23,7 @@ The current set of supported widgets is:
 * `Check`
 * `HBox`
 * `Label`
+* `RadioGroup`
 * `Spacer`
 * `VBox`
 
@@ -40,7 +41,6 @@ Extra widgets which are planned to be supported are:
 * `PaddedContainer`
 * `ProgressBar`
 * `ProgressBarInfinite`
-* `RadioGroup`
 * `Scroll`
 * `Select`
 * `SelectEntry`

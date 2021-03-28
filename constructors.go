@@ -1,6 +1,8 @@
 package fyneloader
 
 import (
+	"fmt"
+
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/layout"
@@ -57,11 +59,7 @@ func CreateAccordion(ctx *errctx.Context, l *Loader, v interface{}) fyne.CanvasO
 		a.MultiOpen = multiopen
 		return a
 	}
-	ctx.Error(maputil.InvalidTypeError{
-		Actual:   maputil.TypeName(v),
-		Expected: []string{maputil.TypeString, maputil.TypeObject},
-	})
-	return nil
+	return InvalidWidgetType(ctx, v)
 }
 
 // CreateButton creates a new button using the data in v.
@@ -119,11 +117,7 @@ func CreateButton(ctx *errctx.Context, l *Loader, v interface{}) fyne.CanvasObje
 		}
 		return btn
 	}
-	ctx.Error(maputil.InvalidTypeError{
-		Actual:   maputil.TypeName(v),
-		Expected: []string{maputil.TypeString, maputil.TypeObject},
-	})
-	return nil
+	return InvalidWidgetType(ctx, v)
 }
 
 // CreateCard creates a new Card widget.
@@ -155,11 +149,7 @@ func CreateCard(ctx *errctx.Context, l *Loader, v interface{}) fyne.CanvasObject
 		card.Image = GetImage(ctx, w)
 		return card
 	}
-	ctx.Error(maputil.InvalidTypeError{
-		Actual:   maputil.TypeName(v),
-		Expected: []string{maputil.TypeString, maputil.TypeObject},
-	})
-	return nil
+	return InvalidWidgetType(ctx, v)
 }
 
 // CreateCheck creates a new Check widget.
@@ -181,11 +171,7 @@ func CreateCheck(ctx *errctx.Context, l *Loader, v interface{}) fyne.CanvasObjec
 		chk.Hidden = hidden
 		return chk
 	}
-	ctx.Error(maputil.InvalidTypeError{
-		Actual:   maputil.TypeName(v),
-		Expected: []string{maputil.TypeString, maputil.TypeObject},
-	})
-	return nil
+	return InvalidWidgetType(ctx, v)
 }
 
 // CreateHBox creates a new HBox container.
@@ -234,11 +220,64 @@ func CreateLabel(ctx *errctx.Context, l *Loader, v interface{}) fyne.CanvasObjec
 		lbl.TextStyle = style
 		return lbl
 	}
-	ctx.Error(maputil.InvalidTypeError{
-		Actual:   maputil.TypeName(v),
-		Expected: []string{maputil.TypeString, maputil.TypeObject},
-	})
-	return nil
+	return InvalidWidgetType(ctx, v)
+}
+
+// CreateRadioGroup creates a new RadioGroup widget.
+func CreateRadioGroup(ctx *errctx.Context, l *Loader, v interface{}) fyne.CanvasObject {
+	switch w := v.(type) {
+	case string:
+		return widget.NewRadioGroup(nil, nil)
+	case map[string]interface{}:
+		var opts []string
+		iopts, _, err := maputil.GetArray(w, KeyOptions)
+		ctx.ErrorWithKey(err, KeyOptions)
+		if len(iopts) > 0 {
+			opts = make([]string, 0, len(iopts))
+			for _, v := range iopts {
+				strval, ok := v.(string)
+				if !ok {
+					strval = fmt.Sprintf("%v", v)
+				}
+				opts = append(opts, strval)
+			}
+		}
+
+		fn, err := GetFnStringToVoid(l, w, KeyFunc)
+		ctx.ErrorWithKey(err, KeyFunc)
+
+		hidden, _, err := maputil.GetBoolean(w, KeyHidden)
+		ctx.ErrorWithKey(err, KeyHidden)
+
+		disabled, _, err := maputil.GetBoolean(w, KeyDisabled)
+		ctx.ErrorWithKey(err, KeyDisabled)
+
+		required, _, err := maputil.GetBoolean(w, KeyRequired)
+		ctx.ErrorWithKey(err, KeyRequired)
+
+		selected, err := GetStringFromArray(w, KeySelected, opts)
+		ctx.ErrorWithKey(err, KeySelected)
+
+		orientation, err := GetStringEnumAsInt(
+			w, KeyOrientation,
+			[]string{ValueDefault, ValueHorizontal, ValueVertical},
+			[]int{1, 0, 1}, 0,
+		)
+		ctx.ErrorWithKey(err, KeyOrientation)
+
+		rgroup := widget.NewRadioGroup(opts, fn)
+		rgroup.Required = required
+		rgroup.Hidden = hidden
+		rgroup.Selected = selected
+		if disabled {
+			rgroup.Disable()
+		}
+		if orientation == 0 {
+			rgroup.Horizontal = true
+		}
+		return rgroup
+	}
+	return InvalidWidgetType(ctx, v)
 }
 
 // CreateSpacer creates a new spacer which expands both vertically and
@@ -288,11 +327,7 @@ func createBox(
 		box.Hidden = hidden
 		return box
 	}
-	ctx.Error(maputil.InvalidTypeError{
-		Actual:   maputil.TypeName(v),
-		Expected: []string{maputil.TypeString, maputil.TypeObject},
-	})
-	return nil
+	return InvalidWidgetType(ctx, v)
 }
 
 func createSpacer(vertical, horizontal bool) fyne.CanvasObject {

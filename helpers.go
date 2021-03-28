@@ -8,37 +8,11 @@ import (
 	"github.com/tvarney/maputil/errctx"
 )
 
-// GetFnVoidToVoid fetches a func() from the registered functions in the loader.
-func GetFnVoidToVoid(l *Loader, data map[string]interface{}, key string) (func(), error) {
-	fnname, ok, err := maputil.GetString(data, key)
-	if err != nil {
-		return nil, err
-	}
-	if !ok {
-		return nil, nil
-	}
-	fni, err := l.GetFunc(fnname)
-	if err != nil {
-		return nil, err
-	}
-
-	fn, ok := fni.(func())
-	if !ok {
-		return nil, FunctionTypeError{
-			Func: fni,
-		}
-	}
-	return fn, nil
-}
-
 // GetFnBoolToVoid fetches a func(bool) from the registered functions in the loader.
 func GetFnBoolToVoid(l *Loader, data map[string]interface{}, key string) (func(bool), error) {
 	fnname, ok, err := maputil.GetString(data, key)
-	if err != nil {
+	if err != nil || !ok {
 		return nil, err
-	}
-	if !ok {
-		return nil, nil
 	}
 	fni, err := l.GetFunc(fnname)
 	if err != nil {
@@ -47,13 +21,49 @@ func GetFnBoolToVoid(l *Loader, data map[string]interface{}, key string) (func(b
 
 	fn, ok := fni.(func(bool))
 	if !ok {
-		return nil, FunctionTypeError{
-			Func: fni,
-		}
+		return nil, FunctionTypeError{Func: fni}
 	}
 	return fn, nil
 }
 
+// GetFnStringToVoid fetches a func(string) from the registered functions in the loader.
+func GetFnStringToVoid(l *Loader, data map[string]interface{}, key string) (func(string), error) {
+	fnname, ok, err := maputil.GetString(data, key)
+	if err != nil || !ok {
+		return nil, err
+	}
+	fni, err := l.GetFunc(fnname)
+	if err != nil {
+		return nil, err
+	}
+
+	fn, ok := fni.(func(string))
+	if !ok {
+		return nil, FunctionTypeError{Func: fni}
+	}
+	return fn, nil
+}
+
+// GetFnVoidToVoid fetches a func() from the registered functions in the loader.
+func GetFnVoidToVoid(l *Loader, data map[string]interface{}, key string) (func(), error) {
+	fnname, ok, err := maputil.GetString(data, key)
+	if err != nil || !ok {
+		return nil, err
+	}
+	fni, err := l.GetFunc(fnname)
+	if err != nil {
+		return nil, err
+	}
+
+	fn, ok := fni.(func())
+	if !ok {
+		return nil, FunctionTypeError{Func: fni}
+	}
+	return fn, nil
+}
+
+// GetStringEnumAsInt fetches a string value from the map and converts it to an
+// integer.
 func GetStringEnumAsInt(data map[string]interface{}, key string, allowed []string, values []int, def int) (int, error) {
 	value, ok, err := maputil.GetString(data, key)
 	if !ok || err != nil {
@@ -65,6 +75,36 @@ func GetStringEnumAsInt(data map[string]interface{}, key string, allowed []strin
 		}
 	}
 	return def, maputil.EnumStringError{Value: value, Enum: allowed}
+}
+
+// GetStringFromArray fetches either a string value or an integer value.
+//
+// If the value is a string, it must be present in the given array.
+func GetStringFromArray(data map[string]interface{}, key string, opts []string) (string, error) {
+	item, ok, err := maputil.GetString(data, key)
+	if err != nil && ok {
+		idx, _, err := maputil.GetInteger(data, KeySelected)
+		if err != nil {
+			return "", maputil.InvalidTypeError{
+				Actual:   maputil.TypeName(data[key]),
+				Expected: []string{maputil.TypeString, maputil.TypeInteger},
+			}
+		}
+		original := idx
+		if idx < 0 {
+			idx = int64(len(opts)) + idx
+		}
+		if idx < 0 || idx > int64(len(opts)) {
+			return "", ArrayIndexOutOfBoundsError{Index: original}
+		}
+		return opts[idx], nil
+	}
+	for _, v := range opts {
+		if item == v {
+			return item, nil
+		}
+	}
+	return "", ErrInvalidOption
 }
 
 // GetTextStyle fetches and interprets a string from the map as a text style.
@@ -89,6 +129,7 @@ func GetTextStyle(data map[string]interface{}, key string) (fyne.TextStyle, erro
 	}
 }
 
+// GetImage fetches and loads an image from a series of keys.
 func GetImage(ctx *errctx.Context, data map[string]interface{}) *canvas.Image {
 	imgpath, pathok, err := maputil.GetString(data, KeyImagePath)
 	ctx.ErrorWithKey(err, KeyImagePath)
@@ -124,4 +165,12 @@ func GetImage(ctx *errctx.Context, data map[string]interface{}) *canvas.Image {
 		img.FillMode = canvas.ImageFill(imgfill)
 	}
 	return img
+}
+
+func InvalidWidgetType(ctx *errctx.Context, v interface{}) fyne.CanvasObject {
+	ctx.Error(maputil.InvalidTypeError{
+		Actual:   maputil.TypeName(v),
+		Expected: []string{maputil.TypeString, maputil.TypeObject},
+	})
+	return nil
 }

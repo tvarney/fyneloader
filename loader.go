@@ -38,6 +38,7 @@ func New() *Loader {
 			"hbox":      CreateHBox,
 			"hspacer":   CreateHSpacer,
 			"label":     CreateLabel,
+			"radio":     CreateRadioGroup,
 			"spacer":    CreateSpacer,
 			"vbox":      CreateVBox,
 			"vspacer":   CreateVSpacer,
