@@ -1,4 +1,4 @@
-root:
+buttons:
   type: vbox
   children:
   - type: hbox
@@ -9,3 +9,13 @@ root:
       text: two
   - type: button
     text: "three"
+
+other:
+  type: vbox
+  children:
+  - type: hbox
+    children:
+    - type: button
+      text: one
+    - type: button
+      text: two
