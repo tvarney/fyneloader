@@ -286,6 +286,51 @@ func CreateSpacer(ctx *errctx.Context, l *Loader, v interface{}) fyne.CanvasObje
 	return createSpacer(true, true)
 }
 
+// CreateSlider creates a new Slider widget.
+func CreateSlider(ctx *errctx.Context, l *Loader, v interface{}) fyne.CanvasObject {
+	switch w := v.(type) {
+	case string:
+		return widget.NewSlider(0.0, 100.0)
+	case map[string]interface{}:
+		min, _, err := maputil.GetNumber(w, KeyMin)
+		ctx.ErrorWithKey(err, KeyMin)
+
+		max, ok, err := maputil.GetNumber(w, KeyMax)
+		ctx.ErrorWithKey(err, KeyMax)
+		if !ok || err != nil {
+			max = 100.0
+		}
+
+		step, ok, err := maputil.GetNumber(w, KeyStep)
+		ctx.ErrorWithKey(err, KeyStep)
+		if !ok || err != nil {
+			step = 1.0
+		}
+
+		fn, err := GetFnFloat64ToVoid(l, w, KeyFunc)
+		ctx.ErrorWithKey(err, KeyFunc)
+
+		orientation, err := GetStringEnumAsInt(
+			w, KeyOrientation,
+			[]string{ValueDefault, ValueHorizontal, ValueVertical},
+			[]int{int(widget.Horizontal), int(widget.Horizontal), int(widget.Vertical)},
+			int(widget.Horizontal),
+		)
+		ctx.ErrorWithKey(err, KeyOrientation)
+
+		hidden, _, err := maputil.GetBoolean(w, KeyHidden)
+		ctx.ErrorWithKey(err, KeyHidden)
+
+		slide := widget.NewSlider(min, max)
+		slide.Step = step
+		slide.Hidden = hidden
+		slide.Orientation = widget.Orientation(orientation)
+		slide.OnChanged = fn
+		return slide
+	}
+	return InvalidWidgetType(ctx, v)
+}
+
 // CreateVBox creates a new HBox container.
 func CreateVBox(ctx *errctx.Context, l *Loader, v interface{}) fyne.CanvasObject {
 	return createBox(ctx, l, v, container.NewVBox)

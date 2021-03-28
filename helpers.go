@@ -8,7 +8,8 @@ import (
 	"github.com/tvarney/maputil/errctx"
 )
 
-// GetFnBoolToVoid fetches a func(bool) from the registered functions in the loader.
+// GetFnBoolToVoid fetches a func(bool) from the registered functions in the
+// loader.
 func GetFnBoolToVoid(l *Loader, data map[string]interface{}, key string) (func(bool), error) {
 	fnname, ok, err := maputil.GetString(data, key)
 	if err != nil || !ok {
@@ -26,7 +27,27 @@ func GetFnBoolToVoid(l *Loader, data map[string]interface{}, key string) (func(b
 	return fn, nil
 }
 
-// GetFnStringToVoid fetches a func(string) from the registered functions in the loader.
+// GetFnFloat64ToVoid fetches a func(float64) from the registered functions in
+// the loader.
+func GetFnFloat64ToVoid(l *Loader, data map[string]interface{}, key string) (func(float64), error) {
+	fnname, ok, err := maputil.GetString(data, key)
+	if err != nil || !ok {
+		return nil, err
+	}
+	fni, err := l.GetFunc(fnname)
+	if err != nil {
+		return nil, err
+	}
+
+	fn, ok := fni.(func(float64))
+	if !ok {
+		return nil, FunctionTypeError{Func: fni}
+	}
+	return fn, nil
+}
+
+// GetFnStringToVoid fetches a func(string) from the registered functions in the
+// loader.
 func GetFnStringToVoid(l *Loader, data map[string]interface{}, key string) (func(string), error) {
 	fnname, ok, err := maputil.GetString(data, key)
 	if err != nil || !ok {

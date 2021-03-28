@@ -24,6 +24,7 @@ The current set of supported widgets is:
 * `HBox`
 * `Label`
 * `RadioGroup`
+* `Slider`
 * `Spacer`
 * `VBox`
 
@@ -45,7 +46,6 @@ Extra widgets which are planned to be supported are:
 * `Select`
 * `SelectEntry`
 * `Separator`
-* `Slider`
 * `Split`
 * `Tabs`
 * `TextGrid`
