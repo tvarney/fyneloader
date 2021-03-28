@@ -3,6 +3,7 @@ package fyneloader
 import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 	"github.com/tvarney/maputil"
 	"github.com/tvarney/maputil/errctx"
@@ -156,6 +157,11 @@ func CreateHBox(ctx *errctx.Context, l *Loader, v interface{}) fyne.CanvasObject
 	return createBox(ctx, l, v, container.NewHBox)
 }
 
+// CreateHSpacer creates a new horizontal spacer.
+func CreateHSpacer(ctx *errctx.Context, l *Loader, v interface{}) fyne.CanvasObject {
+	return createSpacer(false, true)
+}
+
 // CreateLabel creates a new Label.
 func CreateLabel(ctx *errctx.Context, l *Loader, v interface{}) fyne.CanvasObject {
 	switch w := v.(type) {
@@ -199,9 +205,20 @@ func CreateLabel(ctx *errctx.Context, l *Loader, v interface{}) fyne.CanvasObjec
 	return nil
 }
 
+// CreateSpacer creates a new spacer which expands both vertically and
+// horizontally.
+func CreateSpacer(ctx *errctx.Context, l *Loader, v interface{}) fyne.CanvasObject {
+	return createSpacer(true, true)
+}
+
 // CreateVBox creates a new HBox container.
 func CreateVBox(ctx *errctx.Context, l *Loader, v interface{}) fyne.CanvasObject {
 	return createBox(ctx, l, v, container.NewVBox)
+}
+
+// CreateVSpacer creates a new vertical spacer.
+func CreateVSpacer(ctx *errctx.Context, l *Loader, v interface{}) fyne.CanvasObject {
+	return createSpacer(true, false)
 }
 
 func createBox(
@@ -240,4 +257,12 @@ func createBox(
 		Expected: []string{maputil.TypeString, maputil.TypeObject},
 	})
 	return nil
+}
+
+func createSpacer(vertical, horizontal bool) fyne.CanvasObject {
+	s := &layout.Spacer{
+		FixHorizontal: !horizontal,
+		FixVertical:   !vertical,
+	}
+	return s
 }

@@ -35,8 +35,11 @@ func New() *Loader {
 			"button":    CreateButton,
 			"check":     CreateCheck,
 			"hbox":      CreateHBox,
+			"hspacer":   CreateHSpacer,
 			"label":     CreateLabel,
+			"spacer":    CreateSpacer,
 			"vbox":      CreateVBox,
+			"vspacer":   CreateVSpacer,
 		},
 	}
 }
