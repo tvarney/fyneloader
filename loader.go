@@ -33,6 +33,7 @@ func New() *Loader {
 		elements: map[string]CreateElementFn{
 			"accordion": CreateAccordion,
 			"button":    CreateButton,
+			"check":     CreateCheck,
 			"hbox":      CreateHBox,
 			"label":     CreateLabel,
 			"vbox":      CreateVBox,

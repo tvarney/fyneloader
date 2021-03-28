@@ -1,0 +1,9 @@
+root:
+  type: vbox
+  children:
+  - type: check
+    text: One
+  - type: check
+    text: Two
+  - type: check
+    text: Three

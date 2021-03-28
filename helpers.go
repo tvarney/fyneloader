@@ -28,6 +28,29 @@ func GetFnVoidToVoid(l *Loader, data map[string]interface{}, key string) (func()
 	return fn, nil
 }
 
+// GetFnBoolToVoid fetches a func(bool) from the registered functions in the loader.
+func GetFnBoolToVoid(l *Loader, data map[string]interface{}, key string) (func(bool), error) {
+	fnname, ok, err := maputil.GetString(data, key)
+	if err != nil {
+		return nil, err
+	}
+	if !ok {
+		return nil, nil
+	}
+	fni, err := l.GetFunc(fnname)
+	if err != nil {
+		return nil, err
+	}
+
+	fn, ok := fni.(func(bool))
+	if !ok {
+		return nil, FunctionTypeError{
+			Func: fni,
+		}
+	}
+	return fn, nil
+}
+
 func GetStringEnumAsInt(data map[string]interface{}, key string, allowed []string, values []int, def int) (int, error) {
 	value, ok, err := maputil.GetString(data, key)
 	if !ok || err != nil {

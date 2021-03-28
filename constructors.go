@@ -125,6 +125,32 @@ func CreateButton(ctx *errctx.Context, l *Loader, v interface{}) fyne.CanvasObje
 	return nil
 }
 
+// CreateCheck creates a new Check widget.
+func CreateCheck(ctx *errctx.Context, l *Loader, v interface{}) fyne.CanvasObject {
+	switch w := v.(type) {
+	case string:
+		return widget.NewCheck("", nil)
+	case map[string]interface{}:
+		text, _, err := maputil.GetString(w, KeyText)
+		ctx.ErrorWithKey(err, KeyText)
+
+		fn, err := GetFnBoolToVoid(l, w, KeyFunc)
+		ctx.ErrorWithKey(err, KeyFunc)
+
+		hidden, _, err := maputil.GetBoolean(w, KeyHidden)
+		ctx.ErrorWithKey(err, KeyHidden)
+
+		chk := widget.NewCheck(text, fn)
+		chk.Hidden = hidden
+		return chk
+	}
+	ctx.Error(maputil.InvalidTypeError{
+		Actual:   maputil.TypeName(v),
+		Expected: []string{maputil.TypeString, maputil.TypeObject},
+	})
+	return nil
+}
+
 // CreateHBox creates a new HBox container.
 func CreateHBox(ctx *errctx.Context, l *Loader, v interface{}) fyne.CanvasObject {
 	return createBox(ctx, l, v, container.NewHBox)
