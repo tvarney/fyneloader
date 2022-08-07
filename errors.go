@@ -13,6 +13,10 @@ func (e ConstError) Error() string {
 }
 
 const (
+	// ErrFetchURIDisabled indicates that an image URI was parsed using a
+	// loader with that disabled.
+	ErrFetchURIDisabled ConstError = "loading images from URIs is disabled"
+
 	// ErrNoWidgetType indicates that an element map did not have a type field.
 	ErrNoWidgetType ConstError = "no type tag on element definition"
 

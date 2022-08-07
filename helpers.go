@@ -4,9 +4,68 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/storage"
+	"fyne.io/fyne/v2/widget"
 	"github.com/tvarney/maputil"
 	"github.com/tvarney/maputil/errctx"
+	"github.com/tvarney/maputil/mpath"
+	"github.com/tvarney/maputil/unpack"
 )
+
+// GetChild
+func (l *Loader) GetChild(ctx *errctx.Context, data map[string]interface{}) fyne.CanvasObject {
+	raw, ok := data[KeyChild]
+	if !ok || raw == nil {
+		return nil
+	}
+
+	ctx.Path.Add(mpath.Key(KeyChild))
+	child := l.Unpack(ctx, raw)
+	ctx.Path.Pop()
+	return child
+}
+
+// GetImage fetches and loads an image from a series of keys.
+func (l *Loader) GetImage(ctx *errctx.Context, data map[string]interface{}) *canvas.Image {
+	imgpath, pathok, err := maputil.GetString(data, KeyImagePath)
+	ctx.ErrorWithKey(err, KeyImagePath)
+
+	imguri, uriok, err := maputil.GetString(data, KeyImageURI)
+	ctx.ErrorWithKey(err, KeyImageURI)
+
+	imgfill, err := GetStringEnumAsInt(
+		data, KeyImageFill,
+		[]string{ValueDefault, ValueStretch, ValueContain, ValueOriginal},
+		[]int{
+			int(canvas.ImageFillStretch), int(canvas.ImageFillStretch),
+			int(canvas.ImageFillContain), int(canvas.ImageFillOriginal),
+		}, int(canvas.ImageFillStretch),
+	)
+	ctx.ErrorWithKey(err, KeyImageFill)
+
+	var img *canvas.Image
+	if pathok {
+		if uriok {
+			ctx.Error(ConflictingKeysError{Keys: []string{KeyImagePath, KeyImageURI}})
+		}
+		img = canvas.NewImageFromFile(imgpath)
+	} else if uriok {
+		if !l.FetchURIs {
+			ctx.ErrorWithKey(ErrFetchURIDisabled, KeyImageURI)
+			return nil
+		}
+
+		path, err := storage.ParseURI(imguri)
+		if err == nil {
+			img = canvas.NewImageFromURI(path)
+		} else {
+			ctx.ErrorWithKey(err, KeyImageURI)
+		}
+	}
+	if img != nil {
+		img.FillMode = canvas.ImageFill(imgfill)
+	}
+	return img
+}
 
 // GetFnBoolToVoid fetches a func(bool) from the registered functions in the
 // loader.
@@ -129,63 +188,109 @@ func GetStringFromArray(data map[string]interface{}, key string, opts []string) 
 }
 
 // GetTextStyle fetches and interprets a string from the map as a text style.
-func GetTextStyle(data map[string]interface{}, key string) (fyne.TextStyle, error) {
-	value, ok, err := maputil.GetString(data, key)
-	if err != nil || !ok {
-		return fyne.TextStyle{}, err
-	}
+func GetTextStyle(ctx *errctx.Context, data map[string]interface{}, key string) fyne.TextStyle {
+	value := unpack.OptionalStringEnum(ctx, data, key, []string{ValueDefault, "bold", "italic", "monospace", "bold+italic", "italic+bold"}, ValueDefault)
 	switch value {
+	default:
+		return fyne.TextStyle{Bold: false, Italic: false, Monospace: false}
+	case ValueDefault:
+		return fyne.TextStyle{Bold: false, Italic: false, Monospace: false}
 	case "bold":
-		return fyne.TextStyle{Bold: true, Italic: false, Monospace: false}, nil
+		return fyne.TextStyle{Bold: true, Italic: false, Monospace: false}
 	case "italic":
-		return fyne.TextStyle{Bold: false, Italic: true, Monospace: false}, nil
+		return fyne.TextStyle{Bold: false, Italic: true, Monospace: false}
 	case "monospace":
-		return fyne.TextStyle{Bold: false, Italic: false, Monospace: true}, nil
+		return fyne.TextStyle{Bold: false, Italic: false, Monospace: true}
 	case "bold+italic", "italic+bold":
-		return fyne.TextStyle{Bold: true, Italic: true, Monospace: false}, nil
-	}
-	return fyne.TextStyle{}, maputil.EnumStringError{
-		Value: value,
-		Enum:  []string{"bold", "italic", "monospace", "bold+italic", "italic+bold"},
+		return fyne.TextStyle{Bold: true, Italic: true, Monospace: false}
 	}
 }
 
-// GetImage fetches and loads an image from a series of keys.
-func GetImage(ctx *errctx.Context, data map[string]interface{}) *canvas.Image {
-	imgpath, pathok, err := maputil.GetString(data, KeyImagePath)
-	ctx.ErrorWithKey(err, KeyImagePath)
-
-	imguri, uriok, err := maputil.GetString(data, KeyImageURI)
-	ctx.ErrorWithKey(err, KeyImageURI)
-
-	imgfill, err := GetStringEnumAsInt(
-		data, KeyImageFill,
-		[]string{ValueDefault, ValueStretch, ValueContain, ValueOriginal},
-		[]int{
-			int(canvas.ImageFillStretch), int(canvas.ImageFillStretch),
-			int(canvas.ImageFillContain), int(canvas.ImageFillOriginal),
-		}, int(canvas.ImageFillStretch),
-	)
-	ctx.ErrorWithKey(err, KeyImageFill)
-
-	var img *canvas.Image
-	if pathok {
-		if uriok {
-			ctx.Error(ConflictingKeysError{Keys: []string{KeyImagePath, KeyImageURI}})
-		}
-		img = canvas.NewImageFromFile(imgpath)
-	} else if uriok {
-		path, err := storage.ParseURI(imguri)
-		if err == nil {
-			img = canvas.NewImageFromURI(path)
-		} else {
-			ctx.ErrorWithKey(err, KeyImageURI)
-		}
+// GetButtonAlign
+func GetButtonAlign(ctx *errctx.Context, data map[string]interface{}) widget.ButtonAlign {
+	value := unpack.OptionalStringEnum(ctx, data, KeyAlign, []string{ValueDefault, ValueCenter, ValueLeading, ValueTrailing}, ValueDefault)
+	switch value {
+	default:
+		return widget.ButtonAlignCenter
+	case ValueDefault, ValueCenter:
+		return widget.ButtonAlignCenter
+	case ValueLeading:
+		return widget.ButtonAlignLeading
+	case ValueTrailing:
+		return widget.ButtonAlignTrailing
 	}
-	if img != nil {
-		img.FillMode = canvas.ImageFill(imgfill)
+}
+
+// GetButtonIconPlacement
+func GetButtonIconPlacement(ctx *errctx.Context, data map[string]interface{}) widget.ButtonIconPlacement {
+	value := unpack.OptionalStringEnum(ctx, data, KeyIconPlace, []string{ValueDefault, ValueLeading, ValueTrailing}, ValueDefault)
+	switch value {
+	default:
+		return widget.ButtonIconLeadingText
+	case ValueDefault, ValueLeading:
+		return widget.ButtonIconLeadingText
+	case ValueTrailing:
+		return widget.ButtonIconTrailingText
 	}
-	return img
+}
+
+// GetButtonImportance
+func GetButtonImportance(ctx *errctx.Context, data map[string]interface{}) widget.ButtonImportance {
+	value := unpack.OptionalStringEnum(ctx, data, KeyImportance, []string{ValueDefault, ValueLow, ValueMedium, ValueHigh}, ValueDefault)
+	switch value {
+	default:
+		return widget.MediumImportance
+	case ValueDefault, ValueMedium:
+		return widget.MediumImportance
+	case ValueLow:
+		return widget.LowImportance
+	case ValueHigh:
+		return widget.HighImportance
+	}
+}
+
+func GetTextAlign(ctx *errctx.Context, data map[string]interface{}) fyne.TextAlign {
+	value := unpack.OptionalStringEnum(ctx, data, KeyAlign, []string{ValueDefault, ValueLeading, ValueCenter, ValueTrailing}, ValueDefault)
+	switch value {
+	default:
+		return fyne.TextAlignLeading
+	case ValueDefault, ValueLeading:
+		return fyne.TextAlignLeading
+	case ValueCenter:
+		return fyne.TextAlignCenter
+	case ValueTrailing:
+		return fyne.TextAlignTrailing
+	}
+}
+
+func GetTextWrap(ctx *errctx.Context, data map[string]interface{}) fyne.TextWrap {
+	value := unpack.OptionalStringEnum(ctx, data, KeyWrap, []string{ValueDefault, ValueOff, ValueTruncate, ValueBreak, ValueWord}, ValueDefault)
+	switch value {
+	default:
+		return fyne.TextWrapOff
+	case ValueDefault, ValueOff:
+		return fyne.TextWrapOff
+	case ValueTruncate:
+		return fyne.TextTruncate
+	case ValueBreak:
+		return fyne.TextWrapBreak
+	case ValueWord:
+		return fyne.TextWrapWord
+	}
+}
+
+func GetOrientation(ctx *errctx.Context, data map[string]interface{}, defval widget.Orientation) widget.Orientation {
+	value := unpack.OptionalStringEnum(ctx, data, KeyOrientation, []string{ValueDefault, ValueHorizontal, ValueVertical}, ValueDefault)
+	switch value {
+	default:
+		return defval
+	case ValueDefault:
+		return defval
+	case ValueHorizontal:
+		return widget.Horizontal
+	case ValueVertical:
+		return widget.Vertical
+	}
 }
 
 func InvalidWidgetType(ctx *errctx.Context, v interface{}) fyne.CanvasObject {

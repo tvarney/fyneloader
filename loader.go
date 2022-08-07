@@ -18,10 +18,11 @@ import (
 
 // CreateElementFn is the function type used for the element creation
 // callbacks.
-type CreateElementFn func(*errctx.Context, *Loader, interface{}) fyne.CanvasObject
+type CreateElementFn func(*errctx.Context, *Loader, map[string]interface{}) fyne.CanvasObject
 
 // Loader allows for loading UI definitions at runtime.
 type Loader struct {
+	FetchURIs bool
 	callbacks map[string]interface{}
 	elements  map[string]CreateElementFn
 }
@@ -29,6 +30,7 @@ type Loader struct {
 // New returns a new Loader instance.
 func New() *Loader {
 	return &Loader{
+		FetchURIs: false,
 		callbacks: map[string]interface{}{},
 		elements: map[string]CreateElementFn{
 			"accordion": CreateAccordion,
@@ -166,6 +168,10 @@ func (l *Loader) Unmarshal(ctx *errctx.Context, data map[string]interface{}) (ma
 
 // Unpack handles loading a single widget.
 func (l *Loader) Unpack(ctx *errctx.Context, v interface{}) fyne.CanvasObject {
+	if v == nil {
+		return nil
+	}
+
 	switch w := v.(type) {
 	case map[string]interface{}:
 		typename, ok, err := maputil.GetString(w, KeyType)
@@ -190,7 +196,7 @@ func (l *Loader) Unpack(ctx *errctx.Context, v interface{}) fyne.CanvasObject {
 			ctx.Error(UnknownElementType{TypeName: w})
 			return nil
 		}
-		return cb(ctx, l, w)
+		return cb(ctx, l, nil)
 	}
 	ctx.Error(maputil.InvalidTypeError{
 		Actual:   maputil.TypeName(v),
