@@ -11,7 +11,8 @@ import (
 	"github.com/tvarney/maputil/unpack"
 )
 
-// GetChild
+// GetChild fetches the value for the 'child' key and attempts to unpack it as
+// an element.
 func (l *Loader) GetChild(ctx *errctx.Context, data map[string]interface{}) fyne.CanvasObject {
 	raw, ok := data[KeyChild]
 	if !ok || raw == nil {
@@ -189,7 +190,11 @@ func GetStringFromArray(data map[string]interface{}, key string, opts []string) 
 
 // GetTextStyle fetches and interprets a string from the map as a text style.
 func GetTextStyle(ctx *errctx.Context, data map[string]interface{}, key string) fyne.TextStyle {
-	value := unpack.OptionalStringEnum(ctx, data, key, []string{ValueDefault, "bold", "italic", "monospace", "bold+italic", "italic+bold"}, ValueDefault)
+	value := unpack.OptionalStringEnum(
+		ctx, data, key, []string{
+			ValueDefault, "bold", "italic", "monospace", "bold+italic", "italic+bold",
+		}, ValueDefault,
+	)
 	switch value {
 	default:
 		return fyne.TextStyle{Bold: false, Italic: false, Monospace: false}
@@ -206,9 +211,14 @@ func GetTextStyle(ctx *errctx.Context, data map[string]interface{}, key string) 
 	}
 }
 
-// GetButtonAlign
+// GetButtonAlign fetches and interprets a string from the map as a button
+// alignment.
 func GetButtonAlign(ctx *errctx.Context, data map[string]interface{}) widget.ButtonAlign {
-	value := unpack.OptionalStringEnum(ctx, data, KeyAlign, []string{ValueDefault, ValueCenter, ValueLeading, ValueTrailing}, ValueDefault)
+	value := unpack.OptionalStringEnum(
+		ctx, data, KeyAlign, []string{
+			ValueDefault, ValueCenter, ValueLeading, ValueTrailing,
+		}, ValueDefault,
+	)
 	switch value {
 	default:
 		return widget.ButtonAlignCenter
@@ -221,9 +231,14 @@ func GetButtonAlign(ctx *errctx.Context, data map[string]interface{}) widget.But
 	}
 }
 
-// GetButtonIconPlacement
+// GetButtonIconPlacement fetches and interprets a string from the map as a
+// button icon placement value.
 func GetButtonIconPlacement(ctx *errctx.Context, data map[string]interface{}) widget.ButtonIconPlacement {
-	value := unpack.OptionalStringEnum(ctx, data, KeyIconPlace, []string{ValueDefault, ValueLeading, ValueTrailing}, ValueDefault)
+	value := unpack.OptionalStringEnum(
+		ctx, data, KeyIconPlace, []string{
+			ValueDefault, ValueLeading, ValueTrailing,
+		}, ValueDefault,
+	)
 	switch value {
 	default:
 		return widget.ButtonIconLeadingText
@@ -234,9 +249,14 @@ func GetButtonIconPlacement(ctx *errctx.Context, data map[string]interface{}) wi
 	}
 }
 
-// GetButtonImportance
+// GetButtonImportance fetches and interprets a string from the map as a
+// button importance value.
 func GetButtonImportance(ctx *errctx.Context, data map[string]interface{}) widget.ButtonImportance {
-	value := unpack.OptionalStringEnum(ctx, data, KeyImportance, []string{ValueDefault, ValueLow, ValueMedium, ValueHigh}, ValueDefault)
+	value := unpack.OptionalStringEnum(
+		ctx, data, KeyImportance, []string{
+			ValueDefault, ValueLow, ValueMedium, ValueHigh,
+		}, ValueDefault,
+	)
 	switch value {
 	default:
 		return widget.MediumImportance
@@ -249,8 +269,14 @@ func GetButtonImportance(ctx *errctx.Context, data map[string]interface{}) widge
 	}
 }
 
+// GetTextAlign fetches and interprets a string from the map as a text
+// alignment.
 func GetTextAlign(ctx *errctx.Context, data map[string]interface{}) fyne.TextAlign {
-	value := unpack.OptionalStringEnum(ctx, data, KeyAlign, []string{ValueDefault, ValueLeading, ValueCenter, ValueTrailing}, ValueDefault)
+	value := unpack.OptionalStringEnum(
+		ctx, data, KeyAlign, []string{
+			ValueDefault, ValueLeading, ValueCenter, ValueTrailing,
+		}, ValueDefault,
+	)
 	switch value {
 	default:
 		return fyne.TextAlignLeading
@@ -263,8 +289,14 @@ func GetTextAlign(ctx *errctx.Context, data map[string]interface{}) fyne.TextAli
 	}
 }
 
+// GetTextWrap fetches and interprets a string from the map as a text wrap
+// value.
 func GetTextWrap(ctx *errctx.Context, data map[string]interface{}) fyne.TextWrap {
-	value := unpack.OptionalStringEnum(ctx, data, KeyWrap, []string{ValueDefault, ValueOff, ValueTruncate, ValueBreak, ValueWord}, ValueDefault)
+	value := unpack.OptionalStringEnum(
+		ctx, data, KeyWrap, []string{
+			ValueDefault, ValueOff, ValueTruncate, ValueBreak, ValueWord,
+		}, ValueDefault,
+	)
 	switch value {
 	default:
 		return fyne.TextWrapOff
@@ -279,8 +311,14 @@ func GetTextWrap(ctx *errctx.Context, data map[string]interface{}) fyne.TextWrap
 	}
 }
 
+// GetOrientation fetches and interprets a string from the map as an
+// orientation value.
 func GetOrientation(ctx *errctx.Context, data map[string]interface{}, defval widget.Orientation) widget.Orientation {
-	value := unpack.OptionalStringEnum(ctx, data, KeyOrientation, []string{ValueDefault, ValueHorizontal, ValueVertical}, ValueDefault)
+	value := unpack.OptionalStringEnum(
+		ctx, data, KeyOrientation, []string{
+			ValueDefault, ValueHorizontal, ValueVertical,
+		}, ValueDefault,
+	)
 	switch value {
 	default:
 		return defval
@@ -291,12 +329,4 @@ func GetOrientation(ctx *errctx.Context, data map[string]interface{}, defval wid
 	case ValueVertical:
 		return widget.Vertical
 	}
-}
-
-func InvalidWidgetType(ctx *errctx.Context, v interface{}) fyne.CanvasObject {
-	ctx.Error(maputil.InvalidTypeError{
-		Actual:   maputil.TypeName(v),
-		Expected: []string{maputil.TypeString, maputil.TypeObject},
-	})
-	return nil
 }
